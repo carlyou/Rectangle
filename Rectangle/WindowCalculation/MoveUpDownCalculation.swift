@@ -35,16 +35,16 @@ class MoveUpDownCalculation: WindowCalculation, RepeatedExecutionsInThirdsCalcul
 
     }
     
-    func calculateFractionalRect(_ params: RectCalculationParameters, fraction: Float) -> RectResult {
-        return calculateGenericRect(params, fraction: fraction)
+    func calculateFractionalRect(_ params: RectCalculationParameters, cycleSize: CycleSize) -> RectResult {
+        return calculateGenericRect(params, cycleSize: cycleSize)
     }
     
-    func calculateGenericRect(_ params: RectCalculationParameters, fraction: Float? = nil) -> RectResult {
+    func calculateGenericRect(_ params: RectCalculationParameters, cycleSize: CycleSize? = nil) -> RectResult {
         let visibleFrameOfScreen = params.visibleFrameOfScreen
         
         var rect = params.window.rect
-        if let requestedFraction = fraction {
-            rect.size.height = floor(visibleFrameOfScreen.height * CGFloat(requestedFraction))
+        if let requestedCycleSize = cycleSize {
+            rect.size.height = floor(visibleFrameOfScreen.height * CGFloat(requestedCycleSize.height))
         }
         
         if params.action == .moveUp {

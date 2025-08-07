@@ -34,3 +34,5 @@ build/
 *.dat
 *.dep
 
+# AI
+.claude/

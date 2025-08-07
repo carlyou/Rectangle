@@ -34,16 +34,14 @@ class SettingsViewController: NSViewController {
     @IBOutlet weak var stageSlider: NSSlider!
     @IBOutlet weak var stageLabel: NSTextField!
     
-    @IBOutlet weak var cycleSizesView: NSStackView!
-    
-    @IBOutlet var cycleSizesViewHeightConstraint: NSLayoutConstraint!
-    
     @IBOutlet var todoViewHeightConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var actionSpecificCycleSizesView: NSStackView!
+    @IBOutlet var actionSpecificCycleSizesViewHeightConstraint: NSLayoutConstraint!
     
     
     private var aboutTodoWindowController: NSWindowController?
-    
-    private var cycleSizeCheckboxes = [NSButton]()
+    private var cycleSizeWindowController: NSWindowController?
     
     @IBAction func toggleLaunchOnLogin(_ sender: NSButton) {
         let newSetting: Bool = sender.state == .on
@@ -73,7 +71,7 @@ class SettingsViewController: NSViewController {
         }
 
         Defaults.subsequentExecutionMode.value = mode
-        initializeCycleSizesView(animated: true)
+        showHideActionSpecificCycleSizesButton(animated: true)
     }
     
     @IBAction func gapSliderChanged(_ sender: NSSlider) {
@@ -236,22 +234,13 @@ class SettingsViewController: NSViewController {
         
         initializeTodoModeSettings()
         
-        self.cycleSizeCheckboxes.forEach {
-            $0.removeFromSuperview()
-        }
+        showHideActionSpecificCycleSizesButton(animated: false)
         
-        let cycleSizeCheckboxes = makeCycleSizeCheckboxes()
-        cycleSizeCheckboxes.forEach { checkbox in
-            cycleSizesView.addArrangedSubview(checkbox)
-        }
-        self.cycleSizeCheckboxes = cycleSizeCheckboxes
-        
-        initializeCycleSizesView(animated: false)
         
         Notification.Name.configImported.onPost(using: {_ in
             self.initializeTodoModeSettings()
             self.initializeToggles()
-            self.initializeCycleSizesView(animated: false)
+            self.showHideActionSpecificCycleSizesButton(animated: false)
         })
         
         Notification.Name.menuBarIconHidden.onPost(using: {_ in
@@ -309,22 +298,6 @@ class SettingsViewController: NSViewController {
         } else {
             stageView.isHidden = true
         }
-        
-        
-        setToggleStatesForCycleSizeCheckboxes()
-    }
-    
-    private func initializeCycleSizesView(animated: Bool = false) {
-        let showOptionsView = Defaults.subsequentExecutionMode.resizes
-        
-        if showOptionsView {
-            setToggleStatesForCycleSizeCheckboxes()
-        }
-        
-        animateChanges(animated: animated) {
-            cycleSizesView.isHidden = !showOptionsView
-            cycleSizesViewHeightConstraint.isActive = !showOptionsView
-        }
     }
 
     private func animateChanges(animated: Bool, block: () -> Void) {
@@ -341,60 +314,62 @@ class SettingsViewController: NSViewController {
         }
     }
     
-    private func makeCycleSizeCheckboxes() -> [NSButton] {
-        CycleSize.sortedSizes.map { division in
-            let button = NSButton(checkboxWithTitle: division.title, target: self, action: #selector(didCheckCycleSizeCheckbox(sender:)))
-            button.tag = division.rawValue
-            button.setContentCompressionResistancePriority(.required, for: .vertical)
-            return button
-        }
-    }
-    
-    @objc private func didCheckCycleSizeCheckbox(sender: Any?) {
-        guard let checkbox = sender as? NSButton else {
-            Logger.log("Expected action to be sent from NSButton. Instead, sender is: \(String(describing: sender))")
-            return
-        }
+    private func showHideActionSpecificCycleSizesButton(animated: Bool = false) {
+        let showOptionsView = Defaults.subsequentExecutionMode.resizes
         
-        let rawValue = checkbox.tag
-        
-        guard let cycleSize = CycleSize(rawValue: rawValue) else {
-            Logger.log("Expected tag of cycle size checkbox to match a value of CycleSize. Got: \(String(describing: rawValue))")
-            return
-        }
-        
-        // If selected cycle sizes has not been changed, write the defaults.
-        if !Defaults.cycleSizesIsChanged.enabled {
-            Defaults.selectedCycleSizes.value = CycleSize.defaultSizes
-        }
-        
-        Defaults.cycleSizesIsChanged.enabled = true
-        
-        if checkbox.state == .on {
-            Defaults.selectedCycleSizes.value.insert(cycleSize)
+        if showOptionsView {
+            addConfigureActionCycleSizesButton()
         } else {
-            Defaults.selectedCycleSizes.value.remove(cycleSize)
+            removeConfigureActionCycleSizesButton()
+        }
+        
+        animateChanges(animated: animated) {
+            actionSpecificCycleSizesView.isHidden = !showOptionsView
+            actionSpecificCycleSizesViewHeightConstraint.isActive = !showOptionsView
         }
     }
     
-    private func setToggleStatesForCycleSizeCheckboxes() {
-        let useDefaultCycleSizes = !Defaults.cycleSizesIsChanged.enabled
-        let cycleSizes = useDefaultCycleSizes ? CycleSize.defaultSizes : Defaults.selectedCycleSizes.value
-        
-        cycleSizeCheckboxes.forEach { checkbox in
-            guard let cycleSizeForCheckbox = CycleSize(rawValue: checkbox.tag) else {
+    private func removeConfigureActionCycleSizesButton() {
+        for subview in actionSpecificCycleSizesView.arrangedSubviews {
+            if let button = subview as? NSButton, button.title == "Configure Action-Specific Cycle Sizes..." {
+                actionSpecificCycleSizesView.removeArrangedSubview(button)
+                button.removeFromSuperview()
                 return
             }
-            
-            let isAlwaysEnabled = cycleSizeForCheckbox.isAlwaysEnabled
-            let isChecked = isAlwaysEnabled || cycleSizes.contains(cycleSizeForCheckbox)
-            checkbox.state = isChecked ? .on : .off
-            
-            // Show that the box cannot be unchecked.
-            if isAlwaysEnabled {
-                checkbox.isEnabled = false
+        }
+    }
+    
+    private func addConfigureActionCycleSizesButton() {
+        // Check if button already exists to avoid duplicates
+        for subview in actionSpecificCycleSizesView.arrangedSubviews {
+            if let button = subview as? NSButton, button.title == "Configure Action-Specific Cycle Sizes..." {
+                return
             }
         }
+        
+        let button = NSButton(title: "Configure Action-Specific Cycle Sizes...", target: self, action: #selector(openActionCycleSizesWindow))
+        button.bezelStyle = .rounded
+        button.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        button.setContentHuggingPriority(NSLayoutConstraint.Priority(1000), for: .vertical)
+        button.setContentCompressionResistancePriority(NSLayoutConstraint.Priority(1000), for: .vertical)
+        actionSpecificCycleSizesView.addArrangedSubview(button)
+    }
+    
+    @objc private func openActionCycleSizesWindow() {
+        if cycleSizeWindowController == nil {
+            let storyboard = NSStoryboard(name: "Main", bundle: nil)
+            let viewController = storyboard.instantiateController(withIdentifier: "CycleSizeViewController") as! CycleSizeViewController
+            let window = NSWindow(contentViewController: viewController)
+            window.title = "Action-Specific Cycle Sizes"
+            window.setContentSize(NSSize(width: 800, height: 700))
+            window.styleMask = [NSWindow.StyleMask.titled, NSWindow.StyleMask.closable, NSWindow.StyleMask.resizable, NSWindow.StyleMask.miniaturizable]
+            window.center()
+            window.minSize = NSSize(width: 600, height: 500)
+            cycleSizeWindowController = NSWindowController(window: window)
+        }
+        
+        NSApp.activate(ignoringOtherApps: true)
+        cycleSizeWindowController?.showWindow(self)
     }
 
 }
