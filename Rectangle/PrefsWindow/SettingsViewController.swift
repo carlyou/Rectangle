@@ -33,6 +33,9 @@ class SettingsViewController: NSViewController {
     @IBOutlet weak var stageView: NSStackView!
     @IBOutlet weak var stageSlider: NSSlider!
     @IBOutlet weak var stageLabel: NSTextField!
+    private var movementSlider: NSControl!
+    private var movementLabel: NSTextField!
+    private var movementStackView: NSStackView?
     
     @IBOutlet var todoViewHeightConstraint: NSLayoutConstraint!
     
@@ -167,6 +170,69 @@ class SettingsViewController: NSViewController {
         }
     }
     
+    @IBAction func movementTextChanged(_ sender: NSTextField) {
+        if let value = parseOffsetValue(sender.stringValue) {
+            Defaults.pureMovementOffset.value = value
+            sender.stringValue = formatOffsetValue(value) // Normalize the display
+        }
+    }
+    
+    private func parseOffsetValue(_ input: String) -> Float? {
+        let trimmed = input.trimmingCharacters(in: .whitespaces)
+        
+        // Handle percentage (e.g., "8%")
+        if trimmed.hasSuffix("%") {
+            let numberPart = String(trimmed.dropLast())
+            if let percentage = Float(numberPart) {
+                return percentage / 100.0
+            }
+        }
+        
+        // Handle fractions (e.g., "1/12", "1/3")
+        if trimmed.contains("/") {
+            let parts = trimmed.components(separatedBy: "/")
+            if parts.count == 2,
+               let numerator = Float(parts[0].trimmingCharacters(in: .whitespaces)),
+               let denominator = Float(parts[1].trimmingCharacters(in: .whitespaces)),
+               denominator != 0 {
+                return numerator / denominator
+            }
+        }
+        
+        // Handle decimal (e.g., "0.083")
+        if let decimal = Float(trimmed) {
+            return decimal
+        }
+        
+        return nil
+    }
+    
+    private func formatOffsetValue(_ value: Float) -> String {
+        // Try to represent as a nice fraction first
+        let commonFractions: [(Float, String)] = [
+            (1.0/12.0, "1/12"),
+            (1.0/6.0, "1/6"),
+            (1.0/4.0, "1/4"),
+            (1.0/3.0, "1/3"),
+            (1.0/2.0, "1/2")
+        ]
+        
+        for (fraction, display) in commonFractions {
+            if abs(value - fraction) < 0.001 {
+                return display
+            }
+        }
+        
+        // Otherwise show as percentage if it's a nice round number
+        let percentage = value * 100
+        if percentage == round(percentage) {
+            return "\(Int(percentage))%"
+        }
+        
+        // Finally, show as decimal
+        return String(format: "%.3f", value)
+    }
+    
     @IBAction func restoreDefaults(_ sender: Any) {
         // Ask user if they want to restore to Rectangle or Spectacle defaults
         let currentDefaults = Defaults.alternateDefaultShortcuts.enabled ? "Rectangle" : "Spectacle"
@@ -236,6 +302,7 @@ class SettingsViewController: NSViewController {
         
         showHideActionSpecificCycleSizesButton(animated: false)
         
+        setupMovementControls()
         
         Notification.Name.configImported.onPost(using: {_ in
             self.initializeTodoModeSettings()
@@ -298,6 +365,74 @@ class SettingsViewController: NSViewController {
         } else {
             stageView.isHidden = true
         }
+        
+        if let textField = movementSlider as? NSTextField, let label = movementLabel {
+            textField.stringValue = formatOffsetValue(Defaults.pureMovementOffset.value)
+        }
+    }
+    
+    private func setupMovementControls() {
+        // Check if already set up to prevent duplicates
+        if movementStackView != nil {
+            return
+        }
+        
+        // Find the main stack view to add our controls to
+        guard let mainStackView = view.subviews.first(where: { $0 is NSStackView }) as? NSStackView else {
+            return
+        }
+        
+        // Create horizontal stack view for movement controls
+        let movementStack = NSStackView()
+        movementStack.orientation = .horizontal
+        movementStack.alignment = .centerY
+        movementStack.spacing = 10
+        movementStack.translatesAutoresizingMaskIntoConstraints = false
+        
+        // Create label
+        let titleLabel = NSTextField(labelWithString: "Movement Step Size:")
+        titleLabel.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        titleLabel.alignment = .right
+        titleLabel.setContentHuggingPriority(NSLayoutConstraint.Priority(1000), for: .horizontal)
+        
+        // Create text input field
+        movementSlider = NSTextField() // Reusing the same variable name for simplicity
+        if let textField = movementSlider as? NSTextField {
+            textField.stringValue = formatOffsetValue(Defaults.pureMovementOffset.value)
+            textField.target = self
+            textField.action = #selector(movementTextChanged(_:))
+            textField.delegate = self
+            textField.placeholderString = "e.g., 1/12, 0.083, 8%"
+            textField.translatesAutoresizingMaskIntoConstraints = false
+            textField.widthAnchor.constraint(equalToConstant: 160).isActive = true
+            textField.heightAnchor.constraint(equalToConstant: 21).isActive = true
+        }
+        
+        // Create info label  
+        movementLabel = NSTextField(labelWithString: "of screen")
+        movementLabel.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        movementLabel.setContentHuggingPriority(NSLayoutConstraint.Priority(1000), for: .horizontal)
+        movementLabel.setContentCompressionResistancePriority(NSLayoutConstraint.Priority(1000), for: .horizontal)
+        
+        // Add to stack
+        movementStack.addArrangedSubview(titleLabel)
+        movementStack.addArrangedSubview(movementSlider)
+        movementStack.addArrangedSubview(movementLabel)
+        
+        // Width constraint is already set in the text field creation
+        
+        // Insert after the gap slider (try to find it in the stack)
+        var insertIndex = 0
+        for (index, subview) in mainStackView.arrangedSubviews.enumerated() {
+            if let stackView = subview as? NSStackView,
+               stackView.arrangedSubviews.contains(where: { $0 is NSSlider }) {
+                insertIndex = index + 1
+                break
+            }
+        }
+        
+        mainStackView.insertArrangedSubview(movementStack, at: insertIndex)
+        movementStackView = movementStack
     }
 
     private func animateChanges(animated: Bool, block: () -> Void) {
@@ -361,10 +496,13 @@ class SettingsViewController: NSViewController {
             let viewController = storyboard.instantiateController(withIdentifier: "CycleSizeViewController") as! CycleSizeViewController
             let window = NSWindow(contentViewController: viewController)
             window.title = "Action-Specific Cycle Sizes"
-            window.setContentSize(NSSize(width: 800, height: 700))
-            window.styleMask = [NSWindow.StyleMask.titled, NSWindow.StyleMask.closable, NSWindow.StyleMask.resizable, NSWindow.StyleMask.miniaturizable]
+            
+            // Make it larger and resizable for better usability
+            window.setContentSize(NSSize(width: 600, height: 500))
+            window.styleMask = [NSWindow.StyleMask.titled, NSWindow.StyleMask.closable, NSWindow.StyleMask.resizable]
+            window.minSize = NSSize(width: 500, height: 400)
             window.center()
-            window.minSize = NSSize(width: 600, height: 500)
+            
             cycleSizeWindowController = NSWindowController(window: window)
         }
         

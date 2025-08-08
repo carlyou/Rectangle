@@ -62,7 +62,8 @@ class MoveLeftRightCalculation: WindowCalculation, RepeatedExecutionsInThirdsCal
             calculatedWindowRect = calculateGenericRect(params).rect
         }
         
-        if Defaults.centeredDirectionalMove.enabled != false {
+        // Don't center vertically for pure movement - only center if resizing is enabled
+        if Defaults.centeredDirectionalMove.enabled != false && Defaults.resizeOnDirectionalMove.enabled {
             calculatedWindowRect.origin.y = round((visibleFrameOfScreen.height - calculatedWindowRect.height) / 2.0) + visibleFrameOfScreen.minY
         }
         
@@ -87,10 +88,20 @@ class MoveLeftRightCalculation: WindowCalculation, RepeatedExecutionsInThirdsCal
             rect.size.width = floor(visibleFrameOfScreen.width * CGFloat(requestedCycleSize.width))
         }
         
+        // Use incremental movement instead of edge-to-edge movement
+        let moveOffset = visibleFrameOfScreen.width * CGFloat(Defaults.pureMovementOffset.value)
+        
         if params.action == .moveRight {
-            rect.origin.x = visibleFrameOfScreen.maxX - rect.width
+            rect.origin.x += moveOffset
         } else {
+            rect.origin.x -= moveOffset
+        }
+        
+        // Ensure window stays within screen bounds
+        if rect.origin.x < visibleFrameOfScreen.minX {
             rect.origin.x = visibleFrameOfScreen.minX
+        } else if rect.origin.x + rect.width > visibleFrameOfScreen.maxX {
+            rect.origin.x = visibleFrameOfScreen.maxX - rect.width
         }
         
         return RectResult(rect)

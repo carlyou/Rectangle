@@ -263,3 +263,4 @@ class WindowCalculationFactory {
         //     .restore: nil
     ]
 }
+

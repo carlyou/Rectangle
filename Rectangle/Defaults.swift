@@ -38,6 +38,7 @@ class Defaults {
     static let snapEdgeMarginRight = FloatDefault(key: "snapEdgeMarginRight", defaultValue: 5)
     static let centeredDirectionalMove = OptionalBoolDefault(key: "centeredDirectionalMove")
     static let resizeOnDirectionalMove = BoolDefault(key: "resizeOnDirectionalMove")
+    static let pureMovementOffset = FloatDefault(key: "pureMovementOffset", defaultValue: 1.0/12.0)
     static let ignoredSnapAreas = IntDefault(key: "ignoredSnapAreas")
     static let traverseSingleScreen = OptionalBoolDefault(key: "traverseSingleScreen")
     static let minimumWindowWidth = FloatDefault(key: "minimumWindowWidth")
@@ -131,6 +132,7 @@ class Defaults {
         snapEdgeMarginRight,
         centeredDirectionalMove,
         resizeOnDirectionalMove,
+        pureMovementOffset,
         ignoredSnapAreas,
         traverseSingleScreen,
         minimumWindowWidth,
