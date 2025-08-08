@@ -96,7 +96,11 @@ enum WindowAction: Int, Codable {
     largerWidth = 80,
     smallerWidth = 81,
     largerHeight = 82,
-    smallerHeight = 83
+    smallerHeight = 83,
+    shrinkFromBottom = 84,
+    shrinkFromTop = 85,
+    shrinkFromLeft = 86,
+    shrinkFromRight = 87
 
     // Order matters here - it's used in the menu
     static let active = [leftHalf, rightHalf, centerHalf, topHalf, bottomHalf,
@@ -119,13 +123,14 @@ enum WindowAction: Int, Codable {
                          halveHeightUp, halveHeightDown, halveWidthLeft, halveWidthRight,
                          tileAll, cascadeAll,
                          leftTodo, rightTodo,
-                         cascadeActiveApp
+                         cascadeActiveApp,
+                         shrinkFromBottom, shrinkFromTop, shrinkFromLeft, shrinkFromRight
     ]
 
     func post() {
         NotificationCenter.default.post(name: notificationName, object: ExecutionParameters(self))
     }
-    
+
     func postMenu() {
         NotificationCenter.default.post(name: notificationName, object: ExecutionParameters(self, source: .menuItem))
     }
@@ -133,11 +138,11 @@ enum WindowAction: Int, Codable {
     func postSnap(windowElement: AccessibilityElement?, windowId: CGWindowID?, screen: NSScreen) {
         NotificationCenter.default.post(name: notificationName, object: ExecutionParameters(self, updateRestoreRect: false, screen: screen, windowElement: windowElement, windowId: windowId, source: .dragToSnap))
     }
-    
+
     func postUrl() {
         NotificationCenter.default.post(name: notificationName, object: ExecutionParameters(self, source: .url))
     }
-    
+
     func postTitleBar(windowElement: AccessibilityElement?) {
         NotificationCenter.default.post(name: notificationName, object: ExecutionParameters(self, windowElement: windowElement, source: .titleBar))
     }
@@ -234,6 +239,10 @@ enum WindowAction: Int, Codable {
         case .smallerWidth: return "smallerWidth"
         case .largerHeight: return "largerHeight"
         case .smallerHeight: return "smallerHeight"
+        case .shrinkFromBottom: return "shrinkFromBottom"
+        case .shrinkFromTop: return "shrinkFromTop"
+        case .shrinkFromLeft: return "shrinkFromLeft"
+        case .shrinkFromRight: return "shrinkFromRight"
         }
     }
 
@@ -370,7 +379,7 @@ enum WindowAction: Int, Codable {
             return nil
         case .specified, .reverseAll, .tileAll, .cascadeAll, .leftTodo, .rightTodo, .cascadeActiveApp:
             return nil
-        case .centerProminently, .largerWidth, .smallerWidth, .largerHeight, .smallerHeight:
+        case .centerProminently, .largerWidth, .smallerWidth, .largerHeight, .smallerHeight, .shrinkFromBottom, .shrinkFromTop, .shrinkFromLeft, .shrinkFromRight:
             return nil
         }
 
@@ -395,7 +404,7 @@ enum WindowAction: Int, Codable {
         default: return true
         }
     }
-    
+
     var allowedToExtendOutsideCurrentScreenArea: Bool {
         switch self {
         case .doubleHeightUp, .doubleHeightDown, .doubleWidthLeft, .doubleWidthRight:
@@ -404,10 +413,10 @@ enum WindowAction: Int, Codable {
             return false
         }
     }
-    
+
     var isDragSnappable: Bool {
         switch self {
-        case .restore, .previousDisplay, .nextDisplay, .moveUp, .moveDown, .moveLeft, .moveRight, .specified, .reverseAll, .tileAll, .cascadeAll, .larger, .smaller, .largerWidth, .smallerWidth, .cascadeActiveApp,
+        case .restore, .previousDisplay, .nextDisplay, .moveUp, .moveDown, .moveLeft, .moveRight, .specified, .reverseAll, .tileAll, .cascadeAll, .larger, .smaller, .largerWidth, .smallerWidth, .cascadeActiveApp, .shrinkFromBottom, .shrinkFromTop, .shrinkFromLeft, .shrinkFromRight,
             // Ninths
             .topLeftNinth, .topCenterNinth, .topRightNinth, .middleLeftNinth, .middleCenterNinth, .middleRightNinth, .bottomLeftNinth, .bottomCenterNinth, .bottomRightNinth,
             // Corner thirds
@@ -438,6 +447,10 @@ enum WindowAction: Int, Codable {
         case .topLeft: return Shortcut( ctrl|cmd, kVK_LeftArrow )
         case .topRight: return Shortcut( ctrl|cmd, kVK_RightArrow )
         case .restore: return Shortcut( ctrl|alt, kVK_Delete)
+        case .shrinkFromBottom: return Shortcut( ctrl|shift|alt|cmd, kVK_DownArrow )
+        case .shrinkFromTop: return Shortcut( ctrl|shift|alt|cmd, kVK_UpArrow )
+        case .shrinkFromLeft: return Shortcut( ctrl|shift|alt|cmd, kVK_LeftArrow )
+        case .shrinkFromRight: return Shortcut( ctrl|shift|alt|cmd, kVK_RightArrow )
         default: return nil
         }
     }
@@ -550,6 +563,10 @@ enum WindowAction: Int, Codable {
         case .smallerWidth: return NSImage()
         case .largerHeight: return NSImage()
         case .smallerHeight: return NSImage()
+        case .shrinkFromBottom: return NSImage()
+        case .shrinkFromTop: return NSImage()
+        case .shrinkFromLeft: return NSImage()
+        case .shrinkFromRight: return NSImage()
         }
     }
 
@@ -594,9 +611,13 @@ enum WindowAction: Int, Codable {
             return Defaults.applyGapsToMaximizeHeight.userDisabled ? .none : .vertical;
         case .almostMaximize, .previousDisplay, .nextDisplay, .larger, .smaller, .largerWidth, .smallerWidth, .largerHeight, .smallerHeight, .center, .centerProminently, .restore, .specified, .reverseAll, .tileAll, .cascadeAll, .cascadeActiveApp:
             return .none
+        case .shrinkFromBottom, .shrinkFromTop:
+            return .vertical
+        case .shrinkFromLeft, .shrinkFromRight:
+            return .horizontal
         }
     }
-    
+
     var category: WindowActionCategory? { // used to specify a submenu
         switch self {
         case .firstFourth, .secondFourth, .thirdFourth, .lastFourth, .firstThreeFourths, .lastThreeFourths: return .fourths
@@ -605,7 +626,7 @@ enum WindowAction: Int, Codable {
         default: return nil
         }
     }
-    
+
     var classification: WindowActionCategory? {
         switch self {
         case .firstThird, .firstTwoThirds, .centerThird, .lastTwoThirds, .lastThird: return .thirds
@@ -620,55 +641,55 @@ enum SubWindowAction {
     rightThird,
     leftTwoThirds,
     rightTwoThirds,
-    
+
     topThird,
     centerHorizontalThird,
     bottomThird,
     topTwoThirds,
     bottomTwoThirds,
-    
+
     leftFourth,
     centerLeftFourth,
     centerRightFourth,
     rightFourth,
-    
+
     topFourth,
     centerTopFourth,
     centerBottomFourth,
     bottomFourth,
-    
+
     rightThreeFourths,
     bottomThreeFourths,
     leftThreeFourths,
     topThreeFourths,
-    
+
     centerVerticalHalf,
     centerHorizontalHalf,
-    
+
     topLeftSixthLandscape,
     topCenterSixthLandscape,
     topRightSixthLandscape,
     bottomLeftSixthLandscape,
     bottomCenterSixthLandscape,
     bottomRightSixthLandscape,
-    
+
     topLeftSixthPortrait,
     topRightSixthPortrait,
     leftCenterSixthPortrait,
     rightCenterSixthPortrait,
     bottomLeftSixthPortrait,
     bottomRightSixthPortrait,
-    
+
     topLeftTwoSixthsLandscape,
     topLeftTwoSixthsPortrait,
     topRightTwoSixthsLandscape,
     topRightTwoSixthsPortrait,
-    
+
     bottomLeftTwoSixthsLandscape,
     bottomLeftTwoSixthsPortrait,
     bottomRightTwoSixthsLandscape,
     bottomRightTwoSixthsPortrait,
-    
+
     topLeftNinth,
     topCenterNinth,
     topRightNinth,
@@ -678,12 +699,12 @@ enum SubWindowAction {
     bottomLeftNinth,
     bottomCenterNinth,
     bottomRightNinth,
-         
+
     topLeftThird,
     topRightThird,
     bottomLeftThird,
     bottomRightThird,
-         
+
     topLeftEighth,
     topCenterLeftEighth,
     topCenterRightEighth,
@@ -692,9 +713,9 @@ enum SubWindowAction {
     bottomCenterLeftEighth,
     bottomCenterRightEighth,
     bottomRightEighth,
-        
+
     maximize,
-    
+
     leftTodo,
     rightTodo
 
@@ -775,21 +796,21 @@ enum SubWindowAction {
 struct Shortcut: Codable {
     let keyCode: Int
     let modifierFlags: UInt
-    
+
     init(_ modifierFlags: UInt, _ keyCode: Int) {
         self.keyCode = keyCode
         self.modifierFlags = modifierFlags
     }
-    
+
     init(masShortcut: MASShortcut) {
         self.keyCode = masShortcut.keyCode
         self.modifierFlags = masShortcut.modifierFlags.rawValue
     }
-    
+
     func toMASSHortcut() -> MASShortcut {
         MASShortcut(keyCode: keyCode, modifierFlags: NSEvent.ModifierFlags(rawValue: modifierFlags))
     }
-    
+
     func displayString() -> String {
         let masShortcut = toMASSHortcut()
         return masShortcut.modifierFlagsString + (masShortcut.keyCodeString ?? "")
