@@ -62,7 +62,8 @@ class MoveLeftRightCalculation: WindowCalculation, RepeatedExecutionsInThirdsCal
             calculatedWindowRect = calculateGenericRect(params).rect
         }
         
-        if Defaults.centeredDirectionalMove.enabled != false {
+        // Don't center vertically for pure movement - only center if resizing is enabled
+        if Defaults.centeredDirectionalMove.enabled != false && Defaults.resizeOnDirectionalMove.enabled {
             calculatedWindowRect.origin.y = round((visibleFrameOfScreen.height - calculatedWindowRect.height) / 2.0) + visibleFrameOfScreen.minY
         }
         
@@ -75,22 +76,32 @@ class MoveLeftRightCalculation: WindowCalculation, RepeatedExecutionsInThirdsCal
 
     }
     
-    func calculateFractionalRect(_ params: RectCalculationParameters, fraction: Float) -> RectResult {
-        return calculateGenericRect(params, fraction: fraction)
+    func calculateFractionalRect(_ params: RectCalculationParameters, cycleSize: CycleSize) -> RectResult {
+        return calculateGenericRect(params, cycleSize: cycleSize)
     }
     
-    func calculateGenericRect(_ params: RectCalculationParameters, fraction: Float? = nil) -> RectResult {
+    func calculateGenericRect(_ params: RectCalculationParameters, cycleSize: CycleSize? = nil) -> RectResult {
         let visibleFrameOfScreen = params.visibleFrameOfScreen
         
         var rect = params.window.rect
-        if let requestedFraction = fraction {
-            rect.size.width = floor(visibleFrameOfScreen.width * CGFloat(requestedFraction))
+        if let requestedCycleSize = cycleSize {
+            rect.size.width = floor(visibleFrameOfScreen.width * CGFloat(requestedCycleSize.width))
         }
         
+        // Use incremental movement instead of edge-to-edge movement
+        let moveOffset = visibleFrameOfScreen.width * CGFloat(Defaults.pureMovementOffset.value)
+        
         if params.action == .moveRight {
-            rect.origin.x = visibleFrameOfScreen.maxX - rect.width
+            rect.origin.x += moveOffset
         } else {
+            rect.origin.x -= moveOffset
+        }
+        
+        // Ensure window stays within screen bounds
+        if rect.origin.x < visibleFrameOfScreen.minX {
             rect.origin.x = visibleFrameOfScreen.minX
+        } else if rect.origin.x + rect.width > visibleFrameOfScreen.maxX {
+            rect.origin.x = visibleFrameOfScreen.maxX - rect.width
         }
         
         return RectResult(rect)

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-class LeftRightHalfCalculation: WindowCalculation, RepeatedExecutionsInThirdsCalculation {
+class LeftRightHalfCalculation: WindowCalculation, RepeatedExecutionsCalculation {
     
     override func calculate(_ params: WindowCalculationParameters) -> WindowCalculationResult? {
         
@@ -33,17 +33,28 @@ class LeftRightHalfCalculation: WindowCalculation, RepeatedExecutionsInThirdsCal
         
     }
     
-    func calculateFractionalRect(_ params: RectCalculationParameters, fraction: Float) -> RectResult {
+    // MARK: - RepeatedExecutionsCalculation protocol
+    
+    func calculateFirstRect(_ params: RectCalculationParameters) -> RectResult {
+        let firstCycleSize = getFirstCycleSizeForAction(params.action)
+        return calculateRect(for: firstCycleSize, params: params)
+    }
+    
+    func calculateRect(for cycleSize: CycleSize, params: RectCalculationParameters) -> RectResult {
         let visibleFrameOfScreen = params.visibleFrameOfScreen
 
         var rect = visibleFrameOfScreen
         
-        rect.size.width = floor(visibleFrameOfScreen.width * CGFloat(fraction))
+        rect.size.width = floor(visibleFrameOfScreen.width * CGFloat(cycleSize.width))
         if params.action == .rightHalf {
             rect.origin.x = visibleFrameOfScreen.maxX - rect.width
         }
         
         return RectResult(rect)
+    }
+    
+    func calculateFractionalRect(_ params: RectCalculationParameters, cycleSize: CycleSize) -> RectResult {
+        return calculateRect(for: cycleSize, params: params)
     }
 
     func calculateResize(_ params: WindowCalculationParameters) -> WindowCalculationResult? {

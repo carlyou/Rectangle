@@ -9,39 +9,39 @@
 import Cocoa
 
 protocol Calculation {
-    
+
     func calculate(_ params: WindowCalculationParameters) -> WindowCalculationResult?
-    
+
     func calculateRect(_ params: RectCalculationParameters) -> RectResult
 }
 
 class WindowCalculation: Calculation {
-    
+
      func calculate(_ params: WindowCalculationParameters) -> WindowCalculationResult? {
-        
+
         let rectResult = calculateRect(params.asRectParams())
-        
+
         if rectResult.rect.isNull {
             return nil
         }
-        
+
         return WindowCalculationResult(rect: rectResult.rect, screen: params.usableScreens.currentScreen, resultingAction: params.action, resultingSubAction: rectResult.subAction)
     }
 
     func calculateRect(_ params: RectCalculationParameters) -> RectResult {
         RectResult(.null)
     }
-    
+
     func rectCenteredWithinRect(_ rect1: CGRect, _ rect2: CGRect) -> Bool {
         let centeredMidX = abs(rect2.midX - rect1.midX) <= 1.0
         let centeredMidY = abs(rect2.midY - rect1.midY) <= 1.0
         return rect1.contains(rect2) && centeredMidX && centeredMidY
     }
-    
+
     func rectFitsWithinRect(rect1: CGRect, rect2: CGRect) -> Bool {
         (rect1.width <= rect2.width) && (rect1.height <= rect2.height)
     }
-    
+
     func isRepeatedCommand(_ params: WindowCalculationParameters) -> Bool {
         if let lastAction = params.lastAction, lastAction.action == params.action {
             let normalizedLastRect = lastAction.rect.screenFlipped
@@ -49,7 +49,75 @@ class WindowCalculation: Calculation {
         }
         return false
     }
-    
+
+}
+
+class BorderAdjustmentCalculation: WindowCalculation {
+
+    override func calculateRect(_ params: RectCalculationParameters) -> RectResult {
+        let visibleFrameOfScreen = params.visibleFrameOfScreen
+        var rect = params.window.rect
+
+        // Use the same offset setting as pure movement
+        let adjustOffset = CGFloat(Defaults.pureMovementOffset.value)
+
+        switch params.action {
+        case .shrinkFromBottom:
+            // Reduce height, keep bottom position same (move top border down)
+            let heightReduction = visibleFrameOfScreen.height * adjustOffset
+            rect.size.height = max(rect.size.height - heightReduction, 100) // Minimum height
+            // Bottom position stays the same, just shrink height
+
+        case .shrinkFromTop:
+            // Reduce height, keep top position same (move bottom border up)
+            let heightReduction = visibleFrameOfScreen.height * adjustOffset
+            rect.size.height = max(rect.size.height - heightReduction, 100) // Minimum height
+            rect.origin.y += heightReduction // Move origin up to maintain top position
+
+        case .shrinkFromLeft:
+            // Reduce width, keep left position same (move right border left)
+            let widthReduction = visibleFrameOfScreen.width * adjustOffset
+            rect.size.width = max(rect.size.width - widthReduction, 100) // Minimum width
+            // Left position stays the same, just shrink width
+
+        case .shrinkFromRight:
+            // Reduce width, keep right position same (move left border right)
+            let widthReduction = visibleFrameOfScreen.width * adjustOffset
+            rect.size.width = max(rect.size.width - widthReduction, 100) // Minimum width
+            rect.origin.x += widthReduction // Move left border right to maintain right position
+
+        default:
+            // Should not happen, but return original rect if called with wrong action
+            break
+        }
+
+        // Ensure window stays within screen bounds
+        rect = rect.intersection(visibleFrameOfScreen)
+
+        // Final check to ensure minimum size
+        if rect.width < 100 {
+            rect.size.width = 100
+        }
+        if rect.height < 100 {
+            rect.size.height = 100
+        }
+
+        // Ensure window doesn't go outside screen bounds after size adjustment
+        if rect.maxX > visibleFrameOfScreen.maxX {
+            rect.origin.x = visibleFrameOfScreen.maxX - rect.width
+        }
+        if rect.minX < visibleFrameOfScreen.minX {
+            rect.origin.x = visibleFrameOfScreen.minX
+        }
+        if rect.maxY > visibleFrameOfScreen.maxY {
+            rect.origin.y = visibleFrameOfScreen.maxY - rect.height
+        }
+        if rect.minY < visibleFrameOfScreen.minY {
+            rect.origin.y = visibleFrameOfScreen.minY
+        }
+
+        return RectResult(rect)
+    }
 }
 
 struct Window {
@@ -63,14 +131,14 @@ struct WindowCalculationParameters {
     let action: WindowAction
     let lastAction: RectangleAction?
     let ignoreTodo: Bool
-    
+
     func asRectParams(visibleFrame: CGRect? = nil, differentAction: WindowAction? = nil) -> RectCalculationParameters {
         RectCalculationParameters(window: window,
                                   visibleFrameOfScreen: visibleFrame ?? usableScreens.currentScreen.adjustedVisibleFrame(ignoreTodo),
                                   action: differentAction ?? action,
                                   lastAction: lastAction)
     }
-    
+
     func withDifferentAction(_ differentAction: WindowAction) -> WindowCalculationParameters {
         .init(window: window,
               usableScreens: usableScreens,
@@ -91,7 +159,7 @@ struct RectResult {
     let rect: CGRect
     let resultingAction: WindowAction?
     let subAction: SubWindowAction?
-    
+
     init(_ rect: CGRect, resultingAction: WindowAction? = nil, subAction: SubWindowAction? = nil) {
         self.rect = rect
         self.resultingAction = resultingAction
@@ -111,7 +179,7 @@ struct WindowCalculationResult {
          resultingAction: WindowAction,
          resultingSubAction: SubWindowAction? = nil,
          resultingScreenFrame: CGRect? = nil) {
-        
+
         self.rect = rect
         self.screen = screen
         self.resultingAction = resultingAction
@@ -121,7 +189,7 @@ struct WindowCalculationResult {
 }
 
 class WindowCalculationFactory {
-    
+
     static let leftHalfCalculation = LeftRightHalfCalculation()
     static let rightHalfCalculation = LeftRightHalfCalculation()
     static let centerHalfCalculation = CenterHalfCalculation()
@@ -185,6 +253,7 @@ class WindowCalculationFactory {
     static let specifiedCalculation = SpecifiedCalculation()
     static let leftTodoCalculation = LeftTodoCalculation()
     static let rightTodoCalculation = RightTodoCalculation()
+    static let borderAdjustmentCalculation = BorderAdjustmentCalculation()
 
     static let calculationsByAction: [WindowAction: WindowCalculation] = [
      .leftHalf: leftHalfCalculation,
@@ -263,7 +332,12 @@ class WindowCalculationFactory {
      .doubleWidthRight: halfOrDoubleDimensionCalculation,
      .specified: specifiedCalculation,
      .leftTodo: leftTodoCalculation,
-     .rightTodo: rightTodoCalculation
+     .rightTodo: rightTodoCalculation,
+     .shrinkFromBottom: borderAdjustmentCalculation,
+     .shrinkFromTop: borderAdjustmentCalculation,
+     .shrinkFromLeft: borderAdjustmentCalculation,
+     .shrinkFromRight: borderAdjustmentCalculation
         //     .restore: nil
     ]
 }
+

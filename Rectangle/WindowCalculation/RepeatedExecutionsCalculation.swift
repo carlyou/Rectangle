@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UserNotifications
 
 protocol RepeatedExecutionsCalculation {
     
@@ -26,15 +27,63 @@ extension RepeatedExecutionsCalculation {
             return calculateFirstRect(params)
         }
         
-        let useDefaultPositions = !Defaults.cycleSizesIsChanged.enabled
-        let positions = useDefaultPositions ? CycleSize.defaultSizes : Defaults.selectedCycleSizes.value
+        let positions = getCycleSizesForAction(params.action)
         
-        let sortedPositions = CycleSize.sortedSizes
-            .filter { positions.contains($0) }
+        // Get available sizes for this action and filter by selected ones
+        let availableSizes = CycleSize.availableSizes(for: params.action)
+        let sortedPositions = availableSizes.filter { positions.contains($0) }
                 
         let position = count % sortedPositions.count
         
-        return calculateRect(for: sortedPositions[position], params: params)
+        
+        let selectedSize = sortedPositions[position]
+        // Debug: Check what sizes are actually configured for repeated execution
+        
+        return calculateRect(for: selectedSize, params: params)
+    }
+    
+    private func getCycleSizesForAction(_ action: WindowAction) -> Set<CycleSize> {
+        switch action {
+        case .leftHalf:
+            return Defaults.leftHalfCycleSizes.value
+        case .rightHalf:
+            return Defaults.rightHalfCycleSizes.value
+        case .topHalf:
+            return Defaults.topHalfCycleSizes.value
+        case .bottomHalf:
+            return Defaults.bottomHalfCycleSizes.value
+        case .topLeft:
+            return Defaults.topLeftCycleSizes.value
+        case .topRight:
+            return Defaults.topRightCycleSizes.value
+        case .bottomLeft:
+            return Defaults.bottomLeftCycleSizes.value
+        case .bottomRight:
+            return Defaults.bottomRightCycleSizes.value
+        case .centerHalf:
+            return Defaults.centerHalfCycleSizes.value
+        default:
+            // Fall back to global cycle sizes for other actions
+            let useDefaultPositions = !Defaults.cycleSizesIsChanged.enabled
+            return useDefaultPositions ? CycleSize.defaultSizes : Defaults.selectedCycleSizes.value
+        }
+    }
+    
+    func getFirstCycleSizeForAction(_ action: WindowAction) -> CycleSize {
+        let positions = getCycleSizesForAction(action)
+        
+        // Get available sizes for this action and filter by selected ones
+        let availableSizes = CycleSize.availableSizes(for: action)
+        let sortedPositions = availableSizes.filter { positions.contains($0) }
+        
+        // Debug logging
+        
+        let result = sortedPositions.first ?? CycleSize.oneHalf
+        
+        // Debug: Check what sizes are actually configured
+        
+        // Return the first size, or fall back to oneHalf if none are configured
+        return result
     }
     
 }

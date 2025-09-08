@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TopHalfCalculation: WindowCalculation, RepeatedExecutionsInThirdsCalculation {
+class TopHalfCalculation: WindowCalculation, RepeatedExecutionsCalculation {
 
     override func calculateRect(_ params: RectCalculationParameters) -> RectResult {
 
@@ -19,13 +19,24 @@ class TopHalfCalculation: WindowCalculation, RepeatedExecutionsInThirdsCalculati
         return calculateRepeatedRect(params)
     }
     
-    func calculateFractionalRect(_ params: RectCalculationParameters, fraction: Float) -> RectResult {
+    // MARK: - RepeatedExecutionsCalculation protocol
+    
+    func calculateFirstRect(_ params: RectCalculationParameters) -> RectResult {
+        let firstCycleSize = getFirstCycleSizeForAction(params.action)
+        return calculateRect(for: firstCycleSize, params: params)
+    }
+    
+    func calculateRect(for cycleSize: CycleSize, params: RectCalculationParameters) -> RectResult {
         let visibleFrameOfScreen = params.visibleFrameOfScreen
 
         var rect = visibleFrameOfScreen
-        rect.size.height = floor(visibleFrameOfScreen.height * CGFloat(fraction))
+        rect.size.height = floor(visibleFrameOfScreen.height * CGFloat(cycleSize.height))
         rect.origin.y = visibleFrameOfScreen.maxY - rect.height
         return RectResult(rect)
+    }
+    
+    func calculateFractionalRect(_ params: RectCalculationParameters, cycleSize: CycleSize) -> RectResult {
+        return calculateRect(for: cycleSize, params: params)
     }
     
 }

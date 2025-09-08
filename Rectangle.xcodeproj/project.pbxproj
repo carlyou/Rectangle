@@ -87,6 +87,7 @@
 		988D067F22EB4EDE004EABD7 /* MoveLeftRightCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988D067E22EB4EDE004EABD7 /* MoveLeftRightCalculation.swift */; };
 		988D068322EB4EF3004EABD7 /* MoveUpDownCalculation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 988D068222EB4EF3004EABD7 /* MoveUpDownCalculation.swift */; };
 		98910B3E231130AF0066EC23 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98910B3D231130AF0066EC23 /* SettingsViewController.swift */; };
+		ADCF400AD35B45CE9287F841 /* CycleSizeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCF400AD35B45CE9287F842 /* CycleSizeViewController.swift */; };
 		98987AA42391890400BE72C4 /* LogViewer.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 98987AA22391890300BE72C4 /* LogViewer.storyboard */; };
 		98987AA52391890400BE72C4 /* LogViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98987AA32391890400BE72C4 /* LogViewer.swift */; };
 		989DA30E243FC0DF008C7AA4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 989DA30D243FC0DF008C7AA4 /* WelcomeViewController.swift */; };
@@ -265,6 +266,7 @@
 		988D067E22EB4EDE004EABD7 /* MoveLeftRightCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveLeftRightCalculation.swift; sourceTree = "<group>"; };
 		988D068222EB4EF3004EABD7 /* MoveUpDownCalculation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveUpDownCalculation.swift; sourceTree = "<group>"; };
 		98910B3D231130AF0066EC23 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		ADCF400AD35B45CE9287F842 /* CycleSizeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CycleSizeViewController.swift; sourceTree = "<group>"; };
 		98987AA22391890300BE72C4 /* LogViewer.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = LogViewer.storyboard; sourceTree = "<group>"; };
 		98987AA32391890400BE72C4 /* LogViewer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
 		989DA30D243FC0DF008C7AA4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
@@ -609,6 +611,7 @@
 			children = (
 				944F25CC2CE5A144004B2FD2 /* PrefsViewController.swift */,
 				98910B3D231130AF0066EC23 /* SettingsViewController.swift */,
+				ADCF400AD35B45CE9287F842 /* CycleSizeViewController.swift */,
 				983DD03F28A844BE00BF1EEE /* SnapAreaViewController.swift */,
 				98C97FFC25893B040061F01F /* Config.swift */,
 			);
@@ -945,6 +948,7 @@
 				AA3A9E8B29230A82004EB8E5 /* CFExtension.swift in Sources */,
 				98C6DEF023CE191700CC0C1E /* GapCalculation.swift in Sources */,
 				98910B3E231130AF0066EC23 /* SettingsViewController.swift in Sources */,
+				ADCF400AD35B45CE9287F841 /* CycleSizeViewController.swift in Sources */,
 				98A009AD2512498000CFBF0C /* FirstFourthCalculation.swift in Sources */,
 				AA4DA2FB28FDC94A00355CEB /* DispatchTimeExtension.swift in Sources */,
 				98D4B6C525B6256C009C7BF6 /* TodoManager.swift in Sources */,

@@ -10,19 +10,19 @@ import Foundation
 
 protocol RepeatedExecutionsInThirdsCalculation: RepeatedExecutionsCalculation {
     
-    func calculateFractionalRect(_ params: RectCalculationParameters, fraction: Float) -> RectResult
+    func calculateFractionalRect(_ params: RectCalculationParameters, cycleSize: CycleSize) -> RectResult
 
 }
 
 extension RepeatedExecutionsInThirdsCalculation {
     
     func calculateFirstRect(_ params: RectCalculationParameters) -> RectResult {
-        return calculateFractionalRect(params, fraction: 1 / 2.0)
+        let firstCycleSize = getFirstCycleSizeForAction(params.action)
+        return calculateFractionalRect(params, cycleSize: firstCycleSize)
     }
     
     func calculateRect(for cycleDivision: CycleSize, params: RectCalculationParameters) -> RectResult {
-        let fraction = cycleDivision.fraction
-        return calculateFractionalRect(params, fraction: fraction)
+        return calculateFractionalRect(params, cycleSize: cycleDivision)
     }
     
 }

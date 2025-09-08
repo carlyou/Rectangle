@@ -16,6 +16,17 @@ class Defaults {
     static let subsequentExecutionMode = SubsequentExecutionDefault()
     static let selectedCycleSizes = CycleSizesDefault()
     static let cycleSizesIsChanged = BoolDefault(key: "cycleSizesIsChanged")
+    
+    // Action-specific cycle sizes
+    static let leftHalfCycleSizes = ActionCycleSizesDefault(action: .leftHalf)
+    static let rightHalfCycleSizes = ActionCycleSizesDefault(action: .rightHalf)
+    static let topHalfCycleSizes = ActionCycleSizesDefault(action: .topHalf)
+    static let bottomHalfCycleSizes = ActionCycleSizesDefault(action: .bottomHalf)
+    static let topLeftCycleSizes = ActionCycleSizesDefault(action: .topLeft)
+    static let topRightCycleSizes = ActionCycleSizesDefault(action: .topRight)
+    static let bottomLeftCycleSizes = ActionCycleSizesDefault(action: .bottomLeft)
+    static let bottomRightCycleSizes = ActionCycleSizesDefault(action: .bottomRight)
+    static let centerHalfCycleSizes = ActionCycleSizesDefault(action: .centerHalf)
     static let allowAnyShortcut = BoolDefault(key: "allowAnyShortcut")
     static let windowSnapping = OptionalBoolDefault(key: "windowSnapping")
     static let almostMaximizeHeight = FloatDefault(key: "almostMaximizeHeight")
@@ -27,6 +38,7 @@ class Defaults {
     static let snapEdgeMarginRight = FloatDefault(key: "snapEdgeMarginRight", defaultValue: 5)
     static let centeredDirectionalMove = OptionalBoolDefault(key: "centeredDirectionalMove")
     static let resizeOnDirectionalMove = BoolDefault(key: "resizeOnDirectionalMove")
+    static let pureMovementOffset = FloatDefault(key: "pureMovementOffset", defaultValue: 1.0/12.0)
     static let ignoredSnapAreas = IntDefault(key: "ignoredSnapAreas")
     static let traverseSingleScreen = OptionalBoolDefault(key: "traverseSingleScreen")
     static let minimumWindowWidth = FloatDefault(key: "minimumWindowWidth")
@@ -103,6 +115,15 @@ class Defaults {
         subsequentExecutionMode,
         selectedCycleSizes,
         cycleSizesIsChanged,
+        leftHalfCycleSizes,
+        rightHalfCycleSizes,
+        topHalfCycleSizes,
+        bottomHalfCycleSizes,
+        topLeftCycleSizes,
+        topRightCycleSizes,
+        bottomLeftCycleSizes,
+        bottomRightCycleSizes,
+        centerHalfCycleSizes,
         allowAnyShortcut,
         windowSnapping,
         almostMaximizeHeight,
@@ -114,6 +135,7 @@ class Defaults {
         snapEdgeMarginRight,
         centeredDirectionalMove,
         resizeOnDirectionalMove,
+        pureMovementOffset,
         ignoredSnapAreas,
         traverseSingleScreen,
         minimumWindowWidth,
