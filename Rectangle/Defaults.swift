@@ -55,6 +55,7 @@ class Defaults {
     static let screenEdgeGapsOnMainScreenOnly = BoolDefault(key: "screenEdgeGapsOnMainScreenOnly")
     static let screenEdgeGapTopNotch = FloatDefault(key: "screenEdgeGapTopNotch", defaultValue: 0)
     static let lastVersion = StringDefault(key: "lastVersion")
+    static let installVersion = StringDefault(key: "installVersion")
     static let showAllActionsInMenu = OptionalBoolDefault(key: "showAllActionsInMenu")
     static var SUHasLaunchedBefore: Bool { UserDefaults.standard.bool(forKey: "SUHasLaunchedBefore") }
     static let footprintAlpha = FloatDefault(key: "footprintAlpha", defaultValue: 0.3)
@@ -66,6 +67,7 @@ class Defaults {
     static let todoMode = BoolDefault(key: "todoMode")
     static let todoApplication = StringDefault(key: "todoApplication")
     static let todoSidebarWidth = FloatDefault(key: "todoSidebarWidth", defaultValue: 400)
+    static let todoSidebarWidthUnit = IntEnumDefault<TodoSidebarWidthUnit>(key: "todoSidebarWidthUnit", defaultValue: .pixels)
     static let todoSidebarSide = IntEnumDefault<TodoSidebarSide>(key: "todoSidebarSide", defaultValue: .right)
     static let snapModifiers = IntDefault(key: "snapModifiers")
     static let attemptMatchOnNextPrevDisplay = OptionalBoolDefault(key: "attemptMatchOnNextPrevDisplay")
@@ -103,6 +105,7 @@ class Defaults {
     static let systemWideMouseDown = OptionalBoolDefault(key: "systemWideMouseDown")
     static let systemWideMouseDownApps = JSONDefault<Set<String>>(key:"systemWideMouseDownApps", defaultValue: Set<String>(["org.languagetool.desktop", "com.microsoft.teams2"]))
     static let internalTilingNotified = BoolDefault(key: "internalTilingNotified")
+    static let screensOrderedByX = OptionalBoolDefault(key: "screensOrderedByX")
     
     static var array: [Default] = [
         launchOnLogin,
@@ -192,7 +195,8 @@ class Defaults {
         doubleClickTitleBarIgnoredApps,
         ignoreDragSnapToo,
         systemWideMouseDown,
-        systemWideMouseDownApps
+        systemWideMouseDownApps,
+        screensOrderedByX
     ]
 }
 
