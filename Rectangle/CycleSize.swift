@@ -105,8 +105,10 @@ struct CycleSize: Hashable, CaseIterable {
             // Top/Bottom half: only change height, width stays 100%
             return [.heightOneQuarter, .heightOneThird, .heightOneHalf, .heightTwoThirds, .heightThreeQuarters]
         case .centerHalf:
-            // Center half: only change width, height stays 100%
-            return [.widthOneQuarter, .widthOneThird, .widthOneHalf, .widthTwoThirds, .widthThreeQuarters]
+            // Center half: landscape uses width cycling, portrait uses height cycling
+            // This will be determined at runtime based on screen orientation
+            return [.widthOneQuarter, .widthOneThird, .widthOneHalf, .widthTwoThirds, .widthThreeQuarters,
+                    .heightOneQuarter, .heightOneThird, .heightOneHalf, .heightTwoThirds, .heightThreeQuarters]
         case .topLeft, .topRight, .bottomLeft, .bottomRight:
             // Quarter corners: combinations of width x height
             var combinations: [CycleSize] = []
@@ -130,7 +132,7 @@ struct CycleSize: Hashable, CaseIterable {
         case .topHalf, .bottomHalf:
             return Set([.heightOneThird, .heightOneHalf, .heightTwoThirds])
         case .centerHalf:
-            return Set([.widthOneThird, .widthOneHalf, .widthTwoThirds])
+            return Set([.widthOneThird, .widthOneHalf, .widthTwoThirds, .heightOneThird, .heightOneHalf, .heightTwoThirds])
         case .topLeft, .topRight, .bottomLeft, .bottomRight:
             return Set([
                 CycleSize(width: 1/4, height: 1/4),
