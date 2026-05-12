@@ -4153,18 +4153,6 @@
         }
       }
     },
-    "5LN-YU-Bwy.title" : {
-      "comment" : "Class = \"NSMenuItem\"; title = \"px\"; ObjectID = \"5LN-YU-Bwy\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "px"
-          }
-        }
-      }
-    },
     "5QF-Oa-p0T.title" : {
       "comment" : "Class = \"NSMenuItem\"; title = \"Edit\"; ObjectID = \"5QF-Oa-p0T\";",
       "extractionState" : "extracted_with_value",
@@ -8655,18 +8643,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "使用默认"
-          }
-        }
-      }
-    },
-    "AgV-lP-6XB.title" : {
-      "comment" : "Class = \"NSMenuItem\"; title = \"%\"; ObjectID = \"AgV-lP-6XB\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%"
           }
         }
       }
@@ -16354,6 +16330,18 @@
         }
       }
     },
+    "f3c-aD-WHk.title" : {
+      "comment" : "Class = \"NSTextFieldCell\"; title = \"Customize which sizes each window action cycles through when executed repeatedly\"; ObjectID = \"f3c-aD-WHk\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Customize which sizes each window action cycles through when executed repeatedly"
+          }
+        }
+      }
+    },
     "f3Q-q7-Pcy.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Top Right Sixth\"; ObjectID = \"f3Q-q7-Pcy\";",
       "extractionState" : "extracted_with_value",
@@ -22462,7 +22450,7 @@
     },
     "HVG-6v-eJH.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"px\"; ObjectID = \"HVG-6v-eJH\";",
-      "extractionState" : "stale",
+      "extractionState" : "extracted_with_value",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
@@ -30564,6 +30552,18 @@
         }
       }
     },
+    "MYR-rm-qf1.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"Reset All to Defaults\"; ObjectID = \"MYR-rm-qf1\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Reset All to Defaults"
+          }
+        }
+      }
+    },
     "MzN-CJ-ASD.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Make Smaller\"; ObjectID = \"MzN-CJ-ASD\";",
       "extractionState" : "extracted_with_value",
@@ -33300,6 +33300,7 @@
     },
     "oSu-n4-8Yu.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Center Two Thirds\"; ObjectID = \"oSu-n4-8Yu\";",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {
@@ -36231,6 +36232,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "隱藏選單列圖像"
+          }
+        }
+      }
+    },
+    "qNe-YC-asd.title" : {
+      "comment" : "Class = \"NSButtonCell\"; title = \"▶︎ Corner Actions\"; ObjectID = \"qNe-YC-asd\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "▶︎ Corner Actions"
           }
         }
       }
@@ -40165,6 +40178,18 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "視窗"
+          }
+        }
+      }
+    },
+    "tgc-aX-gdi.title" : {
+      "comment" : "Class = \"NSTextFieldCell\"; title = \"Configure Cycle Sizes for Each Action\"; ObjectID = \"tgc-aX-gdi\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Configure Cycle Sizes for Each Action"
           }
         }
       }
@@ -44940,7 +44965,7 @@
     },
     "Vph-Z0-euH.title" : {
       "comment" : "Class = \"NSTextFieldCell\"; title = \"Center Three Fourths\"; ObjectID = \"Vph-Z0-euH\";",
-      "extractionState" : "extracted_with_value",
+      "extractionState" : "stale",
       "localizations" : {
         "ar" : {
           "stringUnit" : {

@@ -27,7 +27,6 @@ class SettingsViewController: NSViewController {
     @IBOutlet weak var todoCheckbox: NSButton!
     @IBOutlet weak var todoView: NSStackView!
     @IBOutlet weak var todoAppWidthField: AutoSaveFloatField!
-    @IBOutlet weak var todoAppWidthUnitPopUpButton: NSPopUpButton!
     @IBOutlet weak var todoAppSidePopUpButton: NSPopUpButton!
     @IBOutlet weak var toggleTodoShortcutView: MASShortcutView!
     @IBOutlet weak var reflowTodoShortcutView: MASShortcutView!
@@ -343,7 +342,6 @@ class SettingsViewController: NSViewController {
         todoAppWidthField.defaultsSetAction = {
             TodoManager.moveAllIfNeeded(false)
         }
-        todoAppWidthUnitPopUpButton.selectItem(withTag: Defaults.todoSidebarWidthUnit.value.rawValue)
         todoAppSidePopUpButton.selectItem(withTag: Defaults.todoSidebarSide.value.rawValue)
         TodoManager.initToggleShortcut()
         TodoManager.initReflowShortcut()
