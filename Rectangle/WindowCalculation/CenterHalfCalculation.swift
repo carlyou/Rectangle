@@ -43,10 +43,11 @@ class CenterHalfCalculation: WindowCalculation, OrientationAware, RepeatedExecut
 
     func portraitRect(_ visibleFrameOfScreen: CGRect, cycleSize: CycleSize) -> RectResult {
         var rect = visibleFrameOfScreen
-        
-        // Resize
-        rect.size.width = round(visibleFrameOfScreen.width * CGFloat(cycleSize.width))
-        rect.size.height = round(visibleFrameOfScreen.height * CGFloat(cycleSize.height))
+
+        // Resize: on a portrait screen the cycle varies height (full width strip),
+        // mirroring the full-height strip a landscape screen produces.
+        rect.size.width = round(visibleFrameOfScreen.width * CGFloat(cycleSize.height))
+        rect.size.height = round(visibleFrameOfScreen.height * CGFloat(cycleSize.width))
         
         // Center
         rect.origin.x = round((visibleFrameOfScreen.width - rect.width) / 2.0) + visibleFrameOfScreen.minX

@@ -488,6 +488,10 @@ enum WindowAction: Int, Codable {
                 return Shortcut( ctrl|alt, kVK_ANSI_R )
             }
             return nil
+        case .shrinkFromBottom: return Shortcut( ctrl|shift|alt|cmd, kVK_DownArrow )
+        case .shrinkFromTop: return Shortcut( ctrl|shift|alt|cmd, kVK_UpArrow )
+        case .shrinkFromLeft: return Shortcut( ctrl|shift|alt|cmd, kVK_LeftArrow )
+        case .shrinkFromRight: return Shortcut( ctrl|shift|alt|cmd, kVK_RightArrow )
         default: return nil
         }
     }
